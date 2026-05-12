@@ -55,11 +55,13 @@ export default function AdminProductsPage() {
     setEditing(product);
     form.resetFields();
     if (product) {
+      const { image, ...productData } = product;
       form.setFieldsValue({
-        ...product,
+        ...productData,
         category: product.category?._id,
         imageUrl: product.image?.url?.startsWith('http') ? product.image.url : '',
         tags: product.tags?.join(', '),
+        image: [],
       });
     }
     setModalOpen(true);
