@@ -62,8 +62,9 @@ export default function AppLayout() {
     <Layout className="site-shell">
       <Header className="site-header">
         <Link to="/" className="brand">
-          <span className="brand-mark">PB</span>
-          <span>Pansar Bazar</span>
+          {/* <span className="brand-mark">PB</span> */}
+          <img height={70} width={100} src="/images/logo.png" alt="Pansar Bazar Logo" className="brand-logo" />
+          {/* <span>Pansar Bazar</span> */}
         </Link>
 
         {screens.md ? (
