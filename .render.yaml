@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: pansar-bazar
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm run build
+    startCommand: npm run start
+    autoDeploy: true

@@ -19,11 +19,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-// ✅ Allow multiple origins from .env
-const allowedOrigins = (process.env.CLIENT_URL ||
-  'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000')
-  .split(',')
-  .map((origin) => origin.trim());
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((origin) => origin.trim())
+  : [];
 
 app.set('trust proxy', 1);
 
@@ -33,26 +31,27 @@ app.use(
   })
 );
 
-// ✅ FIXED CORS
 app.use(
   cors({
     origin(origin, callback) {
-      // Allow requests with no origin (Postman, mobile apps, etc.)
       if (!origin) return callback(null, true);
 
-      // Normalize origin (handle localhost vs 127.0.0.1)
       const normalizedOrigin = origin.replace('127.0.0.1', 'localhost');
 
+      if (allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+
       const isAllowed = allowedOrigins.some((allowed) =>
-        normalizedOrigin.includes(allowed)
+        normalizedOrigin === allowed.replace('127.0.0.1', 'localhost')
       );
 
       if (isAllowed) {
-        callback(null, true);
-      } else {
-        console.log('❌ Blocked by CORS:', origin);
-        callback(new Error('Not allowed by CORS'));
+        return callback(null, true);
       }
+
+      console.warn('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
   })
@@ -85,6 +84,17 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploadRoutes);
+
+const clientBuildPath = path.join(__dirname, '../client/dist');
+app.use(express.static(clientBuildPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    return next();
+  }
+
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
 
 app.use(notFound);
 app.use(errorHandler);
