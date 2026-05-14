@@ -3,6 +3,11 @@ import { Product } from '../models/Product.js';
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import {
+  safelySendEmail,
+  sendAdminOrderNotificationEmail,
+  sendOrderConfirmationEmail,
+} from '../utils/emailService.js';
 
 const buildWhatsappUrl = (order) => {
   const phone = process.env.WHATSAPP_PHONE;
@@ -90,6 +95,11 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   order.whatsappUrl = buildWhatsappUrl(order);
   await order.save();
+
+  await Promise.all([
+    safelySendEmail(() => sendOrderConfirmationEmail({ order, user: req.user })),
+    safelySendEmail(() => sendAdminOrderNotificationEmail({ order, user: req.user })),
+  ]);
 
   res.status(201).json({ order });
 });
