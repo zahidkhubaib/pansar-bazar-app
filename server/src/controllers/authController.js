@@ -1,6 +1,7 @@
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { safelySendEmail, sendWelcomeEmail } from '../utils/emailService.js';
 import { generateToken } from '../utils/generateToken.js';
 
 const authResponse = (user) => ({
@@ -29,6 +30,8 @@ export const register = asyncHandler(async (req, res) => {
     password,
     phone,
   });
+
+  await safelySendEmail(() => sendWelcomeEmail(user));
 
   res.status(201).json(authResponse(user));
 });
