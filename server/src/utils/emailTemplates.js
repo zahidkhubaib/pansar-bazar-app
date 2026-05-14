@@ -1,6 +1,6 @@
 const brand = {
   name: process.env.EMAIL_BRAND_NAME || 'Pansar Bazar',
-  url: process.env.CLIENT_URL?.split(',')[0] || 'http://localhost:5173',
+  url: process.env.CLIENT_URL?.split(',')[0] || 'https://pansar-bazar-app-1.onrender.com',
   supportEmail: process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || '',
 };
 
