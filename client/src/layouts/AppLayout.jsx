@@ -63,7 +63,7 @@ export default function AppLayout() {
       <Header className="site-header">
         <Link to="/" className="brand">
           {/* <span className="brand-mark">PB</span> */}
-          <img height={70} width={100} src="/images/logo.png" alt="Pansar Bazar Logo" className="brand-logo" />
+          <img width={200} src="/images/Logo_9.svg" alt="Pansar Bazar Logo" className="brand-logo" />
           {/* <span>Pansar Bazar</span> */}
         </Link>
 
