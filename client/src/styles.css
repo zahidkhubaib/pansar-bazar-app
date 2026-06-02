@@ -412,3 +412,9 @@ img {
     flex-direction: column;
   }
 }
+
+.brand-logo{
+      max-width: 100px;
+    height: auto;
+    width: 100%;
+}
