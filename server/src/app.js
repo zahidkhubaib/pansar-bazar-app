@@ -78,8 +78,13 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', name: 'Pansar Bazar API' });
 });
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const uploadDir = process.env.UPLOAD_DIR || 'src/uploads';
 
+app.use(
+  '/uploads',
+  express.static(path.resolve(uploadDir))
+);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/contact', contactRoutes);

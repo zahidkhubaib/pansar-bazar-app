@@ -133,6 +133,7 @@ img {
 
 .section-heading,
 .admin-page-title {
+  aspect-ratio: auto;;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -251,6 +252,7 @@ img {
 }
 
 .product-detail-image {
+  aspect-ratio: auto;
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
