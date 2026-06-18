@@ -2,6 +2,7 @@ import './config/env.js';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
+import fs from 'fs';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -93,6 +94,22 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploadRoutes);
+
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+const clientIndexPath = path.join(clientDistPath, 'index.html');
+
+if (fs.existsSync(clientIndexPath)) {
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api')) {
+      next();
+      return;
+    }
+
+    res.sendFile(clientIndexPath);
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
