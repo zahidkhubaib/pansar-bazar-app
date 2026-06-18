@@ -7,8 +7,8 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: process.env.CLOUDINARY_UPLOAD_FOLDER || 'pansar-bazar/products',
+    resource_type: 'image',
     allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
     public_id: (_req, file) => {
       const basename = file.originalname
         .split('.')
