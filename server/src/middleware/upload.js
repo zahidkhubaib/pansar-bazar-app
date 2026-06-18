@@ -1,32 +1,25 @@
-import fs from 'fs';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { cloudinary } from '../config/cloudinary.js';
 import { ApiError } from '../utils/ApiError.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadDir = process.env.UPLOAD_DIR || 'src/uploads';
-const absoluteUploadDir = path.isAbsolute(uploadDir)
-  ? uploadDir
-  : path.resolve(__dirname, '../../', uploadDir.replace(/^src[\\/]/, 'src/'));
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: process.env.CLOUDINARY_UPLOAD_FOLDER || 'pansar-bazar/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+    public_id: (_req, file) => {
+      const basename = file.originalname
+        .split('.')
+        .slice(0, -1)
+        .join('.')
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/^-|-$/g, '')
+        .toLowerCase();
 
-if (!fs.existsSync(absoluteUploadDir)) {
-  console.log('Upload directory:', absoluteUploadDir);
-  fs.mkdirSync(absoluteUploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, absoluteUploadDir);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const basename = path
-      .basename(file.originalname, ext)
-      .replace(/[^a-z0-9]+/gi, '-')
-      .toLowerCase();
-    cb(null, `${Date.now()}-${basename}${ext}`);
+      return `${Date.now()}-${basename || 'image'}`;
+    },
   },
 });
 
