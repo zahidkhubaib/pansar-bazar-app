@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { Category } from '../models/Category.js';
 import { Product } from '../models/Product.js';
+import { cloudinary } from '../config/cloudinary.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -40,7 +41,7 @@ const parseTags = (tags) => {
 const normalizeImage = (body, req) => {
   if (req.file) {
     return {
-      url: `/uploads/${req.file.filename}`,
+      url: req.file.path,
       filename: req.file.filename,
     };
   }
@@ -57,6 +58,17 @@ const normalizeImage = (body, req) => {
   }
 
   return undefined;
+};
+
+const isCloudinaryPublicId = (filename) =>
+  Boolean(filename && !filename.startsWith('http') && !filename.startsWith('/uploads/'));
+
+const deleteCloudinaryImage = async (filename) => {
+  if (!isCloudinaryPublicId(filename)) {
+    return;
+  }
+
+  await cloudinary.uploader.destroy(filename);
 };
 
 export const getProducts = asyncHandler(async (req, res) => {
@@ -163,6 +175,12 @@ export const createProduct = asyncHandler(async (req, res) => {
 });
 
 export const updateProduct = asyncHandler(async (req, res) => {
+  const existingProduct = await Product.findById(req.params.id);
+
+  if (!existingProduct) {
+    throw new ApiError(404, 'Product not found');
+  }
+
   const updates = { ...req.body };
 
   if (updates.tags !== undefined) {
@@ -187,8 +205,8 @@ export const updateProduct = asyncHandler(async (req, res) => {
     runValidators: true,
   }).populate('category', 'name slug');
 
-  if (!product) {
-    throw new ApiError(404, 'Product not found');
+  if (image && existingProduct.image?.filename !== image.filename) {
+    await deleteCloudinaryImage(existingProduct.image?.filename);
   }
 
   res.json({ product });
@@ -200,6 +218,8 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   if (!product) {
     throw new ApiError(404, 'Product not found');
   }
+
+  await deleteCloudinaryImage(product.image?.filename);
 
   res.json({ message: 'Product deleted' });
 });

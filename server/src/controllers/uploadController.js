@@ -8,7 +8,7 @@ export const uploadImage = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     image: {
-      url: `/uploads/${req.file.filename}`,
+      url: req.file.path,
       filename: req.file.filename,
     },
   });

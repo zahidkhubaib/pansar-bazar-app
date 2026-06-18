@@ -25,6 +25,11 @@ export const errorHandler = (err, _req, res, _next) => {
     message = 'Invalid or expired token';
   }
 
+  if (err.http_code) {
+    statusCode = err.http_code;
+    message = err.message || 'Cloudinary upload failed';
+  }
+
   if (err.name === 'ValidationError') {
     statusCode = 422;
     details = Object.values(err.errors).map((error) => ({
