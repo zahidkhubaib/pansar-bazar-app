@@ -85,6 +85,7 @@ app.use(
   '/uploads',
   express.static(path.resolve(uploadDir))
 );
+console.log('Static directory:', path.resolve(uploadDir));
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/contact', contactRoutes);

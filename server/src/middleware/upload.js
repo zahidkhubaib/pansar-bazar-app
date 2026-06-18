@@ -12,6 +12,7 @@ const absoluteUploadDir = path.isAbsolute(uploadDir)
   : path.resolve(__dirname, '../../', uploadDir.replace(/^src[\\/]/, 'src/'));
 
 if (!fs.existsSync(absoluteUploadDir)) {
+  console.log('Upload directory:', absoluteUploadDir);
   fs.mkdirSync(absoluteUploadDir, { recursive: true });
 }
 
