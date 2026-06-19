@@ -1,4 +1,5 @@
 import {
+  DashboardOutlined,
   LoginOutlined,
   LogoutOutlined,
   MenuOutlined,
@@ -7,9 +8,10 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Badge, Button, Drawer, Dropdown, Grid, Input, Layout, Menu, Space } from 'antd';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { categoryApi } from '../api/services.js';
 import { logout } from '../features/auth/authSlice.js';
 import { selectCartCount } from '../features/cart/cartSlice.js';
 
@@ -18,15 +20,41 @@ const { useBreakpoint } = Grid;
 
 export default function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const screens = useBreakpoint();
   const { user } = useSelector((state) => state.auth);
   const cartCount = useSelector(selectCartCount);
 
+  useEffect(() => {
+    let mounted = true;
+
+    categoryApi
+      .list()
+      .then((data) => {
+        if (mounted) {
+          setCategories((data.categories || []).filter((category) => category.isActive));
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setCategories([]);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const navItems = [
     { key: '/', label: <Link to="/">Home</Link> },
     { key: '/products', label: <Link to="/products">Products</Link> },
+  ];
+
+  const drawerNavItems = [
+    ...navItems,
     ...(user?.role === 'admin'
       ? [{ key: '/admin', label: <Link to="/admin">Admin</Link> }]
       : []),
@@ -50,6 +78,19 @@ export default function AppLayout() {
         { key: 'register', icon: <UserOutlined />, label: <Link to="/register">Register</Link> },
       ];
 
+  const categoryItems = useMemo(
+    () =>
+      categories.map((category) => ({
+        key: `/products?category=${category.slug || category.name}`,
+        label: (
+          <Link to={`/products?category=${encodeURIComponent(category.slug || category.name)}`}>
+            {category.name}
+          </Link>
+        ),
+      })),
+    [categories],
+  );
+
   const submitSearch = (value) => {
     const term = value.trim();
     navigate(term ? `/products?search=${encodeURIComponent(term)}` : '/products');
@@ -57,6 +98,15 @@ export default function AppLayout() {
   };
 
   const nav = <Menu mode={screens.md ? 'horizontal' : 'vertical'} items={navItems} selectable={false} />;
+  const drawerNav = <Menu mode="vertical" items={drawerNavItems} selectable={false} />;
+  const categoryNav = categoryItems.length ? (
+    <Menu
+      className="category-nav"
+      mode={screens.md ? 'horizontal' : 'vertical'}
+      items={categoryItems}
+      selectable={false}
+    />
+  ) : null;
 
   return (
     <Layout className="site-shell">
@@ -70,6 +120,7 @@ export default function AppLayout() {
         {screens.md ? (
           <>
             <div className="desktop-nav">{nav}</div>
+            <div className="desktop-category-nav">{categoryNav}</div>
             <Input.Search
               className="header-search"
               placeholder="Search herbs, spices, oils"
@@ -83,6 +134,11 @@ export default function AppLayout() {
         )}
 
         <Space className="header-actions">
+          {screens.md && user?.role === 'admin' ? (
+            <Link to="/admin">
+              <Button icon={<DashboardOutlined />}>Admin</Button>
+            </Link>
+          ) : null}
           <Link to="/cart">
             <Badge count={cartCount} size="small">
               <Button icon={<ShoppingCartOutlined />} />
@@ -97,7 +153,8 @@ export default function AppLayout() {
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Pansar Bazar">
         <Space direction="vertical" size={16} className="full-width">
           <Input.Search placeholder="Search products" onSearch={submitSearch} allowClear />
-          {nav}
+          {drawerNav}
+          {categoryNav}
         </Space>
       </Drawer>
 
