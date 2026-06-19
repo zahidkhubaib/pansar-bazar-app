@@ -75,21 +75,43 @@ img {
 }
 
 .desktop-nav {
-  min-width: 230px;
+  flex: 0 0 auto;
 }
 
-.desktop-nav .ant-menu {
+.desktop-nav .ant-menu,
+.desktop-category-nav .ant-menu {
   border-bottom: 0;
   background: transparent;
 }
 
+.desktop-category-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.desktop-category-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.category-nav {
+  min-width: max-content;
+}
+
+.category-nav .ant-menu-title-content {
+  font-weight: 600;
+  color: #254b33;
+}
+
 .header-search {
-  max-width: 440px;
-  margin-left: auto;
+  flex: 0 1 420px;
+  min-width: 260px;
 }
 
 .header-actions {
-  margin-left: auto;
+  flex: 0 0 auto;
+  margin-left: 0;
 }
 
 .hero-section {
@@ -171,7 +193,7 @@ img {
   color: #254b33;
 }
 
-..product-card {
+.product-card {
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
