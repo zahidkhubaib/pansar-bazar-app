@@ -214,7 +214,7 @@ img {
 
 .product-card .ant-card-cover img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: auto;
   object-fit: cover;
   background: #edf1e4;
   transition: transform 0.35s ease, opacity 0.35s ease;
@@ -276,7 +276,7 @@ img {
 .product-detail-image {
   aspect-ratio: auto;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  /* aspect-ratio: 1 / 1; */
   object-fit: cover;
   border-radius: 8px;
   background: #edf1e4;
